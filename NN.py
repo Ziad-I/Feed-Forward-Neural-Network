@@ -23,6 +23,52 @@ ex: dZ.shape = Z.shape
 import numpy as np
 
 
+class NeuralNetwork:
+    def __init__(self, layers, epochs=100):
+        '''
+        Constructs a neural network with the given layers.
+
+        Parameters:
+        - layers (list): List of Layer objects representing the layers of the network.
+        - epochs (int): number of epochs (iterations) for forward and backward passes
+       '''
+        self.layers = layers
+        self.epochs = epochs
+
+
+    def train(self, X_train, y_train):
+        '''
+        Train the neural network using gradient descent.
+
+        Parameters:
+        - X (numpy.ndarray): Input data of shape (input features, m).
+        - Y (numpy.ndarray): True labels of shape (output layer neurons, m).
+
+        Returns:
+        - None
+        '''
+        # to be implemented
+        pass
+
+    def predict(self, X_test):
+        '''
+        Make predictions using the trained neural network.
+
+        Parameters:
+        - X (numpy.ndarray): Input data of shape (input features, m).
+
+        Returns:
+        - predictions (numpy.ndarray): Predicted labels of shape.
+        '''
+        # to be implemented
+        pass
+
+# error function
+def error(y_true, y_pred):
+    # to be implemented
+    pass
+
+
 class Layer:
     '''
     This class represents a layer in a neural network.
@@ -123,8 +169,8 @@ def d_sigmoid(x):
     return (1 - s) * s
 
 # Loss Functions dont remember if these are the ones we will use or not
-def logloss(y, a):
+def loss(y, a):
     return -(y*np.log(a) + (1-y)*np.log(1-a))
 
-def d_logloss(y, a):
+def d_loss(y, a):
     return (a - y)/(a*(1 - a))
