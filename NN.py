@@ -86,10 +86,12 @@ class Layer:
      A and Z are stored to be used in backward propagation step
 
     to use:
-    >>> layer = Layer(inputs=3, neurons=2, learning_rate=0.01)
+    >>> layers = [
+        Layer(inputs=4, neurons=3, learning_rate=0.01),
+        Layer(inputs=3, neurons=1, learning_rate=0.01)
+        ]
     '''
 
-    
     def __init__(self, inputs, neurons, learning_rate=0.01):
         '''
         Constructs a layer that uses sigmoid as activation function
