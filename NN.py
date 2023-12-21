@@ -9,7 +9,8 @@ where:
     A is output of current layer (y_hat if we are in output layer)
     Note: we call X as A_prev since it is not always features
 
-Note: we use number of samples (m) as we are using vectorized code instead of iterating over every sample
+Note: we use number of samples (m) as we are using vectorized code 
+instead of iterating over every sample
 
 Input to the NN, X_train.shape = (number of features, m)
 W.shape = (number of neurons in layer, inputs)
@@ -102,6 +103,9 @@ class Layer:
         self.learning_rate = learning_rate
         self.W = np.random.randn(neurons, inputs)
         self.b = np.zeros((neurons, 1))
+        self.A_prev = None
+        self.A = None
+        self.Z = None
 
     def forward_propagation(self, A_prev):
         '''
@@ -138,7 +142,8 @@ class Layer:
         1. Calculate the derivative of the sigmoid activation function with respect to Z `(dZ)`
         2. Compute the derivative of the cost function with respect to the weights `(dW)`
         3. Compute the derivative of the cost function with respect to the biases `(db)`
-        4. Compute the derivative of the cost function with respect to the input activations from the previous layer `(dA_prev)`
+        4. Compute the derivative of the cost function with respect to the 
+            input activations from the previous layer `(dA_prev)`
         5. Update the weights `(W)` and biases `(b)` using gradient descent
 
         Parameters:
@@ -162,15 +167,53 @@ class Layer:
 
 # Activation Functions
 def sigmoid(x):
+    '''
+    Compute the sigmoid activation function for a given input.
+
+    Parameters:
+    - x (numpy.ndarray): Input array.
+
+    Returns:
+    - numpy.ndarray: Output array after applying the sigmoid activation function.
+    '''
     return 1/(1 + np.exp(-x))
 
 def d_sigmoid(x):
+    '''
+    Compute the derivative of the sigmoid activation function.
+
+    Parameters:
+    - x (numpy.ndarray): Input array.
+
+    Returns:
+    - numpy.ndarray: the derivative of the sigmoid function.
+    '''
     s = sigmoid(x)
     return (1 - s) * s
 
-# Loss Functions dont remember if these are the ones we will use or not
-def loss(y, a):
-    return -(y*np.log(a) + (1-y)*np.log(1-a))
+# Loss Functions
+def loss(y_true, y_pred):
+    '''
+    Compute the mean squared error (MSE) loss between the true and predicted values.
 
-def d_loss(y, a):
-    return (a - y)/(a*(1 - a))
+    Parameters:
+    - y_true (numpy.ndarray): True values.
+    - y_pred (numpy.ndarray): Predicted values.
+
+    Returns:
+    - float: Mean squared error loss.
+    '''
+    return np.mean((y_true - y_pred) ** 2)
+
+def d_loss(y_true, y_pred):
+    """
+    Compute the derivative of the mean squared error (MSE) loss with respect to the predicted values.
+
+    Parameters:
+    - y_true (numpy.ndarray): True values.
+    - y_pred (numpy.ndarray): Predicted values.
+
+    Returns:
+    - numpy.ndarray: Derivative of the mean squared error loss with respect to 'y_pred'.
+    """
+    return 2 * (y_pred - y_true) / len(y_true)
