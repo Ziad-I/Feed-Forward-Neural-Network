@@ -2,6 +2,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.preprocessing import StandardScaler, LabelEncoder
+from NN import *
 
 # Load the dataset
 path = 'pathtoyourfile'
@@ -22,3 +23,8 @@ scaler = StandardScaler()
 X_train[numerical_columns] = scaler.fit_transform(X_train[numerical_columns])
 X_test[numerical_columns] = scaler.transform(X_test[numerical_columns])
 
+# need features and targets to be in shape (number of features/targets, m)
+X_test = np.asarray(X_test.T)
+X_train = np.asarray(X_train.T)
+y_train = np.asarray(y_train.T)
+y_test = np.asarray(y_test.T)
