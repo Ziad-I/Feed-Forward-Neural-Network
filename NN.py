@@ -157,9 +157,12 @@ class Layer:
             with respect to the input activations from the previous layer,
             of shape (previous layer neurons, m).
         '''
-        dZ = d_sigmoid(self.Z) * dA
-        dW = 1/dZ.shape[1] * np.dot(dZ, self.A_prev.T)
-        db = 1/dZ.shape[1] * np.sum(dZ, axis=1, keepdims=True)
+        # number of samples
+        m = dA.shape[1]
+        
+        dZ = dA * d_sigmoid(self.Z)
+        dW = (1/m) * np.dot(dZ, self.A_prev.T)
+        db = (1/m) * np.sum(dZ, axis=1, keepdims=True)
         dA_prev = np.dot(self.W.T, dZ)
 
         self.W = self.W - self.learning_rate * dW
@@ -205,7 +208,7 @@ def loss(y_true, y_pred):
     Returns:
     - float: Mean squared error loss.
     '''
-    return np.mean((y_true - y_pred) ** 2)
+    return np.mean(np.power(y_true-y_pred, 2));
 
 def d_loss(y_true, y_pred):
     """
