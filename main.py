@@ -5,7 +5,7 @@ from sklearn.preprocessing import StandardScaler, LabelEncoder
 from NN import *
 
 # Load the dataset
-path = 'pathtoyourfile'
+path = '/concrete_data.xlsx'
 df = pd.read_excel(path)
 
 # Define features and targets
@@ -28,3 +28,16 @@ X_test = np.asarray(X_test.T)
 X_train = np.asarray(X_train.T)
 y_train = np.asarray(y_train.T)
 y_test = np.asarray(y_test.T)
+
+# todo: set the the parameters
+layers = [
+    Layer(inputs=4, neurons=idk, activation=sigmoid),
+    Layer(inputs=idk, neurons=idk, activation=linear)
+]
+
+nn = NeuralNetwork(layers)
+
+nn.train(X_train, y_train)
+A = nn.predict(X_test)
+
+print("The error of the NN model is: " + nn.error(y_test, A))

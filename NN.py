@@ -1,3 +1,13 @@
+"""
+    we only need one hidden layer and one output layer
+    the output layer should be a layer that produces a 
+    continuous output(linear). 
+    i needed to add activation attribute to the layer class.
+
+    I have a small question, is the A of the last layer the final output?
+    I assumed this, correct me if i am wrong
+"""
+
 '''
 read this: https://towardsdatascience.com/backpropagation-made-easy-e90a4d5ede55
 
@@ -22,155 +32,36 @@ all derivatives of something are same shape as that something
 ex: dZ.shape = Z.shape
 '''
 import numpy as np
+from sklearn.metrics import r2_score
 
-
-class NeuralNetwork:
-    def __init__(self, layers, epochs=100):
-        '''
-        Constructs a neural network with the given layers.
-
-        Parameters:
-        - layers (list): List of Layer objects representing the layers of the network.
-        - epochs (int): number of epochs (iterations) for forward and backward passes
-       '''
-        self.layers = layers
-        self.epochs = epochs
-
-
-    def train(self, X_train, y_train):
-        '''
-        Train the neural network using gradient descent.
-
-        Parameters:
-        - X (numpy.ndarray): Input data of shape (input features, m).
-        - Y (numpy.ndarray): True labels of shape (output layer neurons, m).
-
-        Returns:
-        - None
-        '''
-        # to be implemented
-        pass
-
-    def predict(self, X_test):
-        '''
-        Make predictions using the trained neural network.
-
-        Parameters:
-        - X (numpy.ndarray): Input data of shape (input features, m).
-
-        Returns:
-        - predictions (numpy.ndarray): Predicted labels of shape.
-        '''
-        # to be implemented
-        pass
-
-# error function
-def error(y_true, y_pred):
-    # to be implemented
-    pass
-
-
-class Layer:
-    '''
-    This class represents a layer in a neural network.
-
-    Attributes:
-    - learning_rate (float): Learning rate for weight updates.
-    - W (numpy.ndarray): Weight matrix of shape (neurons, inputs).
-    - b (numpy.ndarray): Bias matrix of shape (neurons, 1).
-    - Z (numpy.ndarray): Computed Z values for this layer of shape (neurons, inputs)
-    - A (numpy.ndarray): Layer output of shape same as Z
-    - A_prev (numpy.ndarray): output of previous layer.
-
-    Note:
-     A and Z are stored to be used in backward propagation step
-
-    to use:
-    >>> layers = [
-        Layer(inputs=4, neurons=3, learning_rate=0.01),
-        Layer(inputs=3, neurons=1, learning_rate=0.01)
-        ]
-    '''
-
-    def __init__(self, inputs, neurons, learning_rate=0.01):
-        '''
-        Constructs a layer that uses sigmoid as activation function
-        for a neural network
-        
-        Parameters:
-        - inputs (int): Number of input from previous layer (features if we are at first layer).
-        - neurons (int): Number of neurons in the layer.
-        - learning_rate (float, optional): Learning rate for weight updates (default is 0.1).
-        '''
-        self.learning_rate = learning_rate
-        self.W = np.random.randn(neurons, inputs)
-        self.b = np.zeros((neurons, 1))
-        self.A_prev = None
-        self.A = None
-        self.Z = None
-
-    def forward_propagation(self, A_prev):
-        '''
-        Perform a feedforward pass through the layer.
-
-        Given the input activations from the previous layer `(A_prev)`,
-        compute the weighted sum `(Z)` and the activated output `(a)` of the layer.
-
-        Z = W*A_prev + b
-
-        A = sigmoid(Z)
-
-        Parameters:
-        - A_prev (numpy.ndarray): Input activations from the previous layer, 
-            of shape (previous layer neurons, m).
-
-        Returns
-        - A (numpy.ndarray): Output of layer, of shape (neurons, m).
-        '''
-        self.A_prev = A_prev
-        self.Z = np.dot(self.W, self.A_prev) + self.b
-        self.A = sigmoid(self.Z)
-        return self.A
-
-    def backward_propagation(self, dA):
-        '''
-        Perform backward propagation to update weights and biases and compute derivatives.
-        
-        Given the derivative of the cost function with respect to the layer's output (dA),
-        compute the derivatives of the cost function with respect to the layer's parameters.
-        Update the weights (W) and biases `(b)` using the computed derivatives.
-
-        by doing the following steps:
-        1. Calculate the derivative of the sigmoid activation function with respect to Z `(dZ)`
-        2. Compute the derivative of the cost function with respect to the weights `(dW)`
-        3. Compute the derivative of the cost function with respect to the biases `(db)`
-        4. Compute the derivative of the cost function with respect to the 
-            input activations from the previous layer `(dA_prev)`
-        5. Update the weights `(W)` and biases `(b)` using gradient descent
-
-        Parameters:
-        - dA (numpy.ndarray): derivative of the cost function 
-            with respect to the layer's output, of shape (neurons, m).
-
-        Returns:
-        - dA_prev (numpy.ndarray): derivative of the cost function
-            with respect to the input activations from the previous layer,
-            of shape (previous layer neurons, m).
-        '''
-        # number of samples
-        m = dA.shape[1]
-        
-        dZ = dA * d_sigmoid(self.Z)
-        dW = (1/m) * np.dot(dZ, self.A_prev.T)
-        db = (1/m) * np.sum(dZ, axis=1, keepdims=True)
-        dA_prev = np.dot(self.W.T, dZ)
-
-        self.W = self.W - self.learning_rate * dW
-        self.b = self.b - self.learning_rate * db
-
-        return dA_prev
 
 # Activation Functions
+# had to relocate the activation functions at the top because i couldn't pass them as parameters
+def linear(x):
+    """
+    Linear activation function.
+
+    Args:
+        x (numpy.ndarray): Input to the activation function.
+
+    Returns:
+        numpy.ndarray: Output of the activation function.
+    """
+    return x
+
+def d_linear(x):
+    """
+    Derivative of the linear activation function.
+
+    Args:
+        x (numpy.ndarray): Input to the activation function.
+
+    Returns:
+        numpy.ndarray: Derivative of the linear activation function.
+    """
+    # The derivative of the linear function is always 1
+    return np.ones_like(x)
+
 def sigmoid(x):
     '''
     Compute the sigmoid activation function for a given input.
@@ -208,7 +99,7 @@ def loss(y_true, y_pred):
     Returns:
     - float: Mean squared error loss.
     '''
-    return np.mean(np.power(y_true-y_pred, 2));
+    return np.mean(np.power(y_true-y_pred, 2))
 
 def d_loss(y_true, y_pred):
     """
@@ -222,3 +113,186 @@ def d_loss(y_true, y_pred):
     - numpy.ndarray: Derivative of the mean squared error loss with respect to 'y_pred'.
     """
     return 2 * (y_pred - y_true) / len(y_true)
+
+# error function
+def error(y_true, y_pred):
+    """
+    Compute the R-squared (coefficient of determination) error between true and predicted values.
+
+    Args:
+        y_true (numpy.ndarray): True values.
+        y_pred (numpy.ndarray): Predicted values.
+
+    Returns:
+        float: R-squared error.
+    """
+    r2 = r2_score(y_true, y_pred)
+    return 1 - r2  # R-squared is between 0 and 1, so 1 - R-squared gives the error
+
+
+class NeuralNetwork:
+    def __init__(self, layers, epochs=100):
+        '''
+        Constructs a neural network with the given layers.
+
+        Parameters:
+        - layers (list): List of Layer objects representing the layers of the network.
+        - epochs (int): number of epochs (iterations) for forward and backward passes
+       '''
+        self.layers = layers
+        self.epochs = epochs
+
+    def train(self, X_train, y_train):
+        '''
+        Train the neural network using gradient descent.
+
+        Parameters:
+        - X_train (numpy.ndarray): Input data of shape (input features, m).
+        - y_train (numpy.ndarray): True labels of shape (output layer neurons, m).
+        
+        Returns:
+        - None
+        '''
+
+        for _ in range(self.epochs):
+            # the class structure forces me to do two separate loops
+
+            # forward prop
+            A_prev = X_train
+            for i in range(len(self.layers)):
+                A = self.layers[i].forward_propagation(A_prev)
+                A_prev = A
+            
+            # backward prop
+            # todo: not sure about the initialization
+            dA = d_sigmoid(d_loss(y_train, A))
+
+            for i in range(len(self.layers), -1, -1):
+                dA_prev = self.layer[i].backward_propagation(dA)
+                dA = dA_prev
+
+    def predict(self, X_test):
+        '''
+        Make predictions using the trained neural network.
+
+        Parameters:
+        - X (numpy.ndarray): Input data of shape (input features, m).
+
+        Returns:
+        - predictions (numpy.ndarray): Predicted labels of shape.
+        '''
+        
+        # just do forward prop
+        A_prev = X_test
+        for i in range(len(self.layers)):
+            A = self.layers[i].forward_propagation(A_prev)
+            A_prev = A
+
+        return A
+
+class Layer:
+    '''
+    This class represents a layer in a neural network.
+
+    Attributes:
+    - learning_rate (float): Learning rate for weight updates.
+    - W (numpy.ndarray): Weight matrix of shape (neurons, inputs).
+    - b (numpy.ndarray): Bias matrix of shape (neurons, 1).
+    - Z (numpy.ndarray): Computed Z values for this layer of shape (neurons, inputs)
+    - A (numpy.ndarray): Layer output of shape same as Z
+    - A_prev (numpy.ndarray): output of previous layer.
+
+    Note:
+     A and Z are stored to be used in backward propagation step
+
+    to use:
+    >>> layers = [
+        Layer(inputs=4, neurons=3, activation=sigmoid, learning_rate=0.01),
+        Layer(inputs=3, neurons=1, activation=sigmoid, learning_rate=0.01)
+        ]
+    '''
+
+    def __init__(self, inputs, neurons, activation=sigmoid, learning_rate=0.01):
+        '''
+        Constructs a layer that uses one of the defined activation functions
+        for a neural network
+        
+        Parameters:
+        - inputs (int): Number of input from previous layer (features if we are at first layer).
+        - neurons (int): Number of neurons in the layer.
+        - activation (function): the function to be used as an activation function
+        - learning_rate (float, optional): Learning rate for weight updates (default is 0.01).
+        '''
+        self.activation = activation
+        # a smart fix instead of ton of if statements or having to pass the deactivation as
+        # a parameter to the layer
+        # the drawback is that it is depends on the naming. activation should have a d_activation function
+        self.d_activation = eval("d_" + activation.__name__)
+        self.learning_rate = learning_rate
+        self.W = np.random.randn(neurons, inputs)
+        self.b = np.zeros((neurons, 1))
+        self.A_prev = None
+        self.A = None
+        self.Z = None
+
+    def forward_propagation(self, A_prev):
+        '''
+        Perform a feedforward pass through the layer.
+
+        Given the input activations from the previous layer `(A_prev)`,
+        compute the weighted sum `(Z)` and the activated output `(a)` of the layer.
+
+        Z = W*A_prev + b
+
+        A = activation(Z)
+
+        Parameters:
+        - A_prev (numpy.ndarray): Input activations from the previous layer, 
+            of shape (previous layer neurons, m).
+
+        Returns
+        - A (numpy.ndarray): Output of layer, of shape (neurons, m).
+        '''
+        self.A_prev = A_prev
+        self.Z = np.dot(self.W, self.A_prev) + self.b
+        self.A = self.activation(self.Z)
+        return self.A
+
+    def backward_propagation(self, dA):
+        '''
+        Perform backward propagation to update weights and biases and compute derivatives.
+        
+        Given the derivative of the cost function with respect to the layer's output (dA),
+        compute the derivatives of the cost function with respect to the layer's parameters.
+        Update the weights (W) and biases `(b)` using the computed derivatives.
+
+        by doing the following steps:
+        1. Calculate the derivative of the activation function with respect to Z `(dZ)`
+        2. Compute the derivative of the cost function with respect to the weights `(dW)`
+        3. Compute the derivative of the cost function with respect to the biases `(db)`
+        4. Compute the derivative of the cost function with respect to the 
+            input activations from the previous layer `(dA_prev)`
+        5. Update the weights `(W)` and biases `(b)` using gradient descent
+
+        Parameters:
+        - dA (numpy.ndarray): derivative of the cost function 
+            with respect to the layer's output, of shape (neurons, m).
+
+        Returns:
+        - dA_prev (numpy.ndarray): derivative of the cost function
+            with respect to the input activations from the previous layer,
+            of shape (previous layer neurons, m).
+        '''
+        # number of samples
+        m = dA.shape[1]
+        
+        dZ = dA * self.d_activation(self.Z)
+        dW = (1/m) * np.dot(dZ, self.A_prev.T)
+        db = (1/m) * np.sum(dZ, axis=1, keepdims=True)
+        dA_prev = np.dot(self.W.T, dZ)
+
+        self.W = self.W - self.learning_rate * dW
+        self.b = self.b - self.learning_rate * db
+
+        return dA_prev
+
