@@ -32,102 +32,7 @@ all derivatives of something are same shape as that something
 ex: dZ.shape = Z.shape
 '''
 import numpy as np
-from sklearn.metrics import r2_score
-
-
-# Activation Functions
-# had to relocate the activation functions at the top because i couldn't pass them as parameters
-def linear(x):
-    """
-    Linear activation function.
-
-    Args:
-        x (numpy.ndarray): Input to the activation function.
-
-    Returns:
-        numpy.ndarray: Output of the activation function.
-    """
-    return x
-
-def d_linear(x):
-    """
-    Derivative of the linear activation function.
-
-    Args:
-        x (numpy.ndarray): Input to the activation function.
-
-    Returns:
-        numpy.ndarray: Derivative of the linear activation function.
-    """
-    # The derivative of the linear function is always 1
-    return np.ones_like(x)
-
-def sigmoid(x):
-    '''
-    Compute the sigmoid activation function for a given input.
-
-    Parameters:
-    - x (numpy.ndarray): Input array.
-
-    Returns:
-    - numpy.ndarray: Output array after applying the sigmoid activation function.
-    '''
-    return 1/(1 + np.exp(-x))
-
-def d_sigmoid(x):
-    '''
-    Compute the derivative of the sigmoid activation function.
-
-    Parameters:
-    - x (numpy.ndarray): Input array.
-
-    Returns:
-    - numpy.ndarray: the derivative of the sigmoid function.
-    '''
-    s = sigmoid(x)
-    return (1 - s) * s
-
-# Loss Functions
-def loss(y_true, y_pred):
-    '''
-    Compute the mean squared error (MSE) loss between the true and predicted values.
-
-    Parameters:
-    - y_true (numpy.ndarray): True values.
-    - y_pred (numpy.ndarray): Predicted values.
-
-    Returns:
-    - float: Mean squared error loss.
-    '''
-    return np.mean(np.power(y_true-y_pred, 2))
-
-def d_loss(y_true, y_pred):
-    """
-    Compute the derivative of the mean squared error (MSE) loss with respect to the predicted values.
-
-    Parameters:
-    - y_true (numpy.ndarray): True values.
-    - y_pred (numpy.ndarray): Predicted values.
-
-    Returns:
-    - numpy.ndarray: Derivative of the mean squared error loss with respect to 'y_pred'.
-    """
-    return 2 * (y_pred - y_true) / len(y_true)
-
-# error function
-def error(y_true, y_pred):
-    """
-    Compute the R-squared (coefficient of determination) error between true and predicted values.
-
-    Args:
-        y_true (numpy.ndarray): True values.
-        y_pred (numpy.ndarray): Predicted values.
-
-    Returns:
-        float: R-squared error.
-    """
-    r2 = r2_score(y_true, y_pred)
-    return 1 - r2  # R-squared is between 0 and 1, so 1 - R-squared gives the error
+from sklearn.metrics import r2_score, mean_squared_error
 
 
 class NeuralNetwork:
@@ -165,10 +70,10 @@ class NeuralNetwork:
             
             # backward prop
             # todo: not sure about the initialization
-            dA = d_sigmoid(d_loss(y_train, A))
+            dA = d_loss(y_train, A)
 
-            for i in range(len(self.layers), -1, -1):
-                dA_prev = self.layer[i].backward_propagation(dA)
+            for i in range(len(self.layers) - 1, -1, -1):
+                dA_prev = self.layers[i].backward_propagation(dA)
                 dA = dA_prev
 
     def predict(self, X_test):
@@ -187,8 +92,20 @@ class NeuralNetwork:
         for i in range(len(self.layers)):
             A = self.layers[i].forward_propagation(A_prev)
             A_prev = A
-
         return A
+    
+    def error(self, y_true, y_pred):
+        """
+        Compute the mean squared error (MSE) between the true and predicted values.
+
+        Parameters:
+        - y_true (array-like): Ground truth (true values).
+        - y_pred (array-like): Predicted values.
+
+        Returns:
+        - float: Mean squared error between the true and predicted values.
+        """
+        return mean_squared_error(y_true, y_pred)
 
 class Layer:
     '''
@@ -196,6 +113,9 @@ class Layer:
 
     Attributes:
     - learning_rate (float): Learning rate for weight updates.
+    - activation (callable): the activation function for this layer
+    - d_activation (callable): the gradient of the activation
+        function for this layer
     - W (numpy.ndarray): Weight matrix of shape (neurons, inputs).
     - b (numpy.ndarray): Bias matrix of shape (neurons, 1).
     - Z (numpy.ndarray): Computed Z values for this layer of shape (neurons, inputs)
@@ -212,7 +132,7 @@ class Layer:
         ]
     '''
 
-    def __init__(self, inputs, neurons, activation=sigmoid, learning_rate=0.01):
+    def __init__(self, inputs, neurons, activation="sigmoid", learning_rate=0.01):
         '''
         Constructs a layer that uses one of the defined activation functions
         for a neural network
@@ -220,14 +140,12 @@ class Layer:
         Parameters:
         - inputs (int): Number of input from previous layer (features if we are at first layer).
         - neurons (int): Number of neurons in the layer.
-        - activation (function): the function to be used as an activation function
+        - activation (string): the function name to be used as an activation function
         - learning_rate (float, optional): Learning rate for weight updates (default is 0.01).
         '''
-        self.activation = activation
-        # a smart fix instead of ton of if statements or having to pass the deactivation as
-        # a parameter to the layer
-        # the drawback is that it is depends on the naming. activation should have a d_activation function
-        self.d_activation = eval("d_" + activation.__name__)
+        activation = activation.lower()
+        self.activation = eval(activation)
+        self.d_activation = eval("d_" + activation)
         self.learning_rate = learning_rate
         self.W = np.random.randn(neurons, inputs)
         self.b = np.zeros((neurons, 1))
@@ -296,3 +214,82 @@ class Layer:
 
         return dA_prev
 
+
+
+# Activation Functions
+def linear(x):
+    """
+    Linear activation function.
+
+    Args:
+     - x (numpy.ndarray): Input to the activation function.
+
+    Returns:
+     - numpy.ndarray: Output of the activation function.
+    """
+    return x
+
+def d_linear(x):
+    """
+    Derivative of the linear activation function.
+
+    Args:
+     - x (numpy.ndarray): Input to the activation function.
+
+    Returns:
+     - numpy.ndarray: Derivative of the linear activation function.
+    """
+    # The derivative of the linear function is always 1
+    return np.ones_like(x)
+
+def sigmoid(x):
+    '''
+    Compute the sigmoid activation function for a given input.
+
+    Parameters:
+    - x (numpy.ndarray): Input array.
+
+    Returns:
+    - numpy.ndarray: Output array after applying the sigmoid activation function.
+    '''
+    return 1/(1 + np.exp(-x))
+
+def d_sigmoid(x):
+    '''
+    Compute the derivative of the sigmoid activation function.
+
+    Parameters:
+    - x (numpy.ndarray): Input array.
+
+    Returns:
+    - numpy.ndarray: the derivative of the sigmoid function.
+    '''
+    s = sigmoid(x)
+    return (1 - s) * s
+
+# Loss Functions
+def loss(y_true, y_pred):
+    '''
+    Compute the mean squared error (MSE) loss between the true and predicted values.
+
+    Parameters:
+    - y_true (numpy.ndarray): True values.
+    - y_pred (numpy.ndarray): Predicted values.
+
+    Returns:
+    - float: Mean squared error loss.
+    '''
+    return np.mean(np.power(y_true-y_pred, 2))
+
+def d_loss(y_true, y_pred):
+    """
+    Compute the derivative of the mean squared error (MSE) loss with respect to the predicted values.
+
+    Parameters:
+    - y_true (numpy.ndarray): True values.
+    - y_pred (numpy.ndarray): Predicted values.
+
+    Returns:
+    - numpy.ndarray: Derivative of the mean squared error loss with respect to 'y_pred'.
+    """
+    return 2 * (y_pred - y_true) / len(y_true)

@@ -1,11 +1,12 @@
+import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.preprocessing import StandardScaler, LabelEncoder
-from NN import *
+from NN import NeuralNetwork, Layer
 
 # Load the dataset
-path = '/concrete_data.xlsx'
+path = './concrete_data.xlsx'
 df = pd.read_excel(path)
 
 # Define features and targets
@@ -31,8 +32,8 @@ y_test = np.asarray(y_test.T)
 
 # todo: set the the parameters
 layers = [
-    Layer(inputs=4, neurons=idk, activation=sigmoid),
-    Layer(inputs=idk, neurons=idk, activation=linear)
+    Layer(inputs=4, neurons=32, activation="sigmoid", learning_rate=0.1),
+    Layer(inputs=32, neurons=1, activation="linear", learning_rate=0.1)
 ]
 
 nn = NeuralNetwork(layers)
@@ -40,4 +41,4 @@ nn = NeuralNetwork(layers)
 nn.train(X_train, y_train)
 A = nn.predict(X_test)
 
-print("The error of the NN model is: " + nn.error(y_test, A))
+print("The error of the Neural Network model is: ", nn.error(y_test.flatten(), A.flatten()))
