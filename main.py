@@ -30,7 +30,6 @@ X_train = np.asarray(X_train.T)
 y_train = np.asarray(y_train.T)
 y_test = np.asarray(y_test.T)
 
-# todo: set the the parameters
 layers = [
     Layer(inputs=4, neurons=32, activation="sigmoid", learning_rate=0.1),
     Layer(inputs=32, neurons=1, activation="linear", learning_rate=0.1)

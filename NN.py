@@ -69,7 +69,6 @@ class NeuralNetwork:
                 A_prev = A
             
             # backward prop
-            # todo: not sure about the initialization
             dA = d_loss(y_train, A)
 
             for i in range(len(self.layers) - 1, -1, -1):
@@ -127,8 +126,8 @@ class Layer:
 
     to use:
     >>> layers = [
-        Layer(inputs=4, neurons=3, activation=sigmoid, learning_rate=0.01),
-        Layer(inputs=3, neurons=1, activation=sigmoid, learning_rate=0.01)
+        Layer(inputs=4, neurons=3, activation="sigmoid", learning_rate=0.01),
+        Layer(inputs=3, neurons=1, activation="linear", learning_rate=0.01)
         ]
     '''
 
